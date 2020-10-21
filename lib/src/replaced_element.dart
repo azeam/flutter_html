@@ -144,7 +144,7 @@ class ImageContentElement extends ReplacedElement {
               MultipleTapGestureRecognizer>(
             () => MultipleTapGestureRecognizer(),
             (instance) {
-              instance..onTap = () => context.parser.onImageTap?.call(src);
+              instance..onTap = () => context.parser.onImageTap?.call(src, alt);
             },
           ),
         },

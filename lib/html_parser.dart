@@ -13,6 +13,7 @@ import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart' as htmlparser;
 
 typedef OnTap = void Function(String url);
+typedef OnImgTap = void Function(String url, String alt);
 typedef CustomRender = Widget Function(
   RenderContext context,
   Widget parsedChild,
@@ -23,7 +24,7 @@ typedef CustomRender = Widget Function(
 class HtmlParser extends StatelessWidget {
   final String htmlData;
   final OnTap onLinkTap;
-  final OnTap onImageTap;
+  final OnImgTap onImageTap;
   final ImageErrorListener onImageError;
   final bool shrinkWrap;
 
@@ -69,7 +70,7 @@ class HtmlParser extends StatelessWidget {
     // scaling is used, but relies on https://github.com/flutter/flutter/pull/59711
     // to wrap everything when larger accessibility fonts are used.
     return StyledText(
-      textSpan: parsedTree, 
+      textSpan: parsedTree,
       style: cleanedTree.style,
       textScaleFactor: MediaQuery.of(context).textScaleFactor,
     );
@@ -268,7 +269,8 @@ class HtmlParser extends StatelessWidget {
           shrinkWrap: context.parser.shrinkWrap,
           child: Stack(
             children: [
-              if (tree.style?.listStylePosition == ListStylePosition.OUTSIDE || tree.style?.listStylePosition == null)
+              if (tree.style?.listStylePosition == ListStylePosition.OUTSIDE ||
+                  tree.style?.listStylePosition == null)
                 PositionedDirectional(
                   width: 30, //TODO derive this from list padding.
                   start: 0,

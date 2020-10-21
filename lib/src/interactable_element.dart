@@ -6,12 +6,14 @@ import 'package:html/dom.dart' as dom;
 /// An [InteractableElement] is a [StyledElement] that takes user gestures (e.g. tap).
 class InteractableElement extends StyledElement {
   String href;
+  String alt;
 
   InteractableElement({
     String name,
     List<StyledElement> children,
     Style style,
     this.href,
+    this.alt,
     dom.Node node,
   }) : super(name: name, children: children, style: style, node: node);
 }

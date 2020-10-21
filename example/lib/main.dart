@@ -177,8 +177,8 @@ class _MyHomePageState extends State<MyHomePage> {
           onLinkTap: (url) {
             print("Opening $url...");
           },
-          onImageTap: (src) {
-            print(src);
+          onImageTap: (src, alt) {
+            print(src + alt);
           },
           onImageError: (exception, stackTrace) {
             print(exception);
