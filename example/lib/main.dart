@@ -178,7 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
             print("Opening $url...");
           },
           onImageTap: (src, alt) {
-            print(src + alt);
+            print("src: " + src + "alt: " + alt);
           },
           onImageError: (exception, stackTrace) {
             print(exception);
