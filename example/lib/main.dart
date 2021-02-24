@@ -72,7 +72,7 @@ const htmlData = """
         <td rowspan='2'>Rowspan\nRowspan\nRowspan\nRowspan\nRowspan\nRowspan\nRowspan\nRowspan\nRowspan\nRowspan</td><td>Data</td><td>Data</td>
       </tr>
       <tr>
-        <td colspan="2"><img alt='Google' src='https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png' /></td>
+        <td colspan="2"><img alt='Google' src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/368px-Google_2015_logo.svg.png' /></td>
       </tr>
       </tbody>
       <tfoot>
@@ -118,9 +118,9 @@ const htmlData = """
       </p>
       <h3>Image support:</h3>
       <h3>Network png</h3>
-      <img alt='Google' src='https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png' />
+      <img alt='Google' src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/368px-Google_2015_logo.svg.png' />
       <h3>Network svg</h3>
-      <img src='https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/android.svg' />
+      <img src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/368px-Google_2015_logo.svg.png' />
       <h3>Local asset png</h3>
       <img src='asset:assets/html5.png' width='100' />
       <h3>Local asset svg</h3>
@@ -135,7 +135,7 @@ const htmlData = """
       <img alt='No source' />
       <img alt='Empty source' src='' />
       <h3>Broken network image</h3>
-      <img alt='Broken image' src='https://www.notgoogle.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png' />
+      <img alt='Broken image' src='https://flutter.dev/images/flutter-mono-81x100.png' />
 """;
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -165,13 +165,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 networkImageRender(
                     mapUrl: (url) => "https://upload.wikimedia.org" + url),
             // Custom placeholder image for broken links
-            networkSourceMatcher(): networkImageRender(altWidget: (_) => FlutterLogo()),
+            networkSourceMatcher():
+                networkImageRender(altWidget: (_) => FlutterLogo()),
           },
           onLinkTap: (url) {
             print("Opening $url...");
           },
-          onImageTap: (src) {
+          onImageTap: (src, alt) {
+            print("test");
             print(src);
+            print(alt);
           },
           onImageError: (exception, stackTrace) {
             print(exception);

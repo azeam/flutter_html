@@ -17,7 +17,8 @@ import 'package:html/parser.dart' as htmlparser;
 import 'package:webview_flutter/webview_flutter.dart';
 
 typedef OnTap = void Function(String url);
-typedef CustomRender = dynamic Function(
+typedef OnImgTap = void Function(String url, String alt);
+typedef CustomRender = Widget Function(
   RenderContext context,
   Widget parsedChild,
   Map<String, String> attributes,
@@ -27,7 +28,7 @@ typedef CustomRender = dynamic Function(
 class HtmlParser extends StatelessWidget {
   final String htmlData;
   final OnTap onLinkTap;
-  final OnTap onImageTap;
+  final OnImgTap onImageTap;
   final ImageErrorListener onImageError;
   final bool shrinkWrap;
 
@@ -296,8 +297,12 @@ class HtmlParser extends StatelessWidget {
       );
     } else if (tree.style?.display == Display.LIST_ITEM) {
       List<InlineSpan> getChildren(StyledElement tree) {
-        InlineSpan tabSpan = WidgetSpan(child: Text("\t", textAlign: TextAlign.right));
-        List<InlineSpan> children = tree.children?.map((tree) => parseTree(newContext, tree))?.toList() ?? [];
+        InlineSpan tabSpan =
+            WidgetSpan(child: Text("\t", textAlign: TextAlign.right));
+        List<InlineSpan> children = tree.children
+                ?.map((tree) => parseTree(newContext, tree))
+                ?.toList() ??
+            [];
         if (tree.style?.listStylePosition == ListStylePosition.INSIDE) {
           children.insert(0, tabSpan);
         }
@@ -315,24 +320,38 @@ class HtmlParser extends StatelessWidget {
             textDirection: tree.style?.direction,
             children: [
               tree.style?.listStylePosition == ListStylePosition.OUTSIDE ||
-                  tree.style?.listStylePosition == null ?
-              Padding(
-                padding: tree.style?.padding ?? EdgeInsets.only(left: tree.style?.direction != TextDirection.rtl ? 10.0 : 0.0, right: tree.style?.direction == TextDirection.rtl ? 10.0 : 0.0),
-                child: Text(
-                    newContext.style.markerContent,
-                    textAlign: TextAlign.right,
-                    style: newContext.style.generateTextStyle()
-                ),
-              ) : Container(height: 0, width: 0),
+                      tree.style?.listStylePosition == null
+                  ? Padding(
+                      padding: tree.style?.padding ??
+                          EdgeInsets.only(
+                              left: tree.style?.direction != TextDirection.rtl
+                                  ? 10.0
+                                  : 0.0,
+                              right: tree.style?.direction == TextDirection.rtl
+                                  ? 10.0
+                                  : 0.0),
+                      child: Text(newContext.style.markerContent,
+                          textAlign: TextAlign.right,
+                          style: newContext.style.generateTextStyle()),
+                    )
+                  : Container(height: 0, width: 0),
               Text("\t", textAlign: TextAlign.right),
               Expanded(
                   child: Padding(
-                      padding: tree.style?.listStylePosition == ListStylePosition.INSIDE ?
-                        EdgeInsets.only(left: tree.style?.direction != TextDirection.rtl ? 10.0 : 0.0, right: tree.style?.direction == TextDirection.rtl ? 10.0 : 0.0) : EdgeInsets.zero,
+                      padding: tree.style?.listStylePosition ==
+                              ListStylePosition.INSIDE
+                          ? EdgeInsets.only(
+                              left: tree.style?.direction != TextDirection.rtl
+                                  ? 10.0
+                                  : 0.0,
+                              right: tree.style?.direction == TextDirection.rtl
+                                  ? 10.0
+                                  : 0.0)
+                          : EdgeInsets.zero,
                       child: StyledText(
                         textSpan: TextSpan(
                           text: (tree.style?.listStylePosition ==
-                              ListStylePosition.INSIDE)
+                                  ListStylePosition.INSIDE)
                               ? '${newContext.style.markerContent}'
                               : null,
                           children: getChildren(tree),
@@ -340,9 +359,7 @@ class HtmlParser extends StatelessWidget {
                         ),
                         style: newContext.style,
                         renderContext: context,
-                      )
-                  )
-              )
+                      )))
             ],
           ),
         ),
@@ -354,7 +371,19 @@ class HtmlParser extends StatelessWidget {
         return WidgetSpan(
           alignment: tree.alignment,
           baseline: TextBaseline.alphabetic,
-          child: tree.toWidget(context),
+          child: RawGestureDetector(
+            gestures: {
+              MultipleTapGestureRecognizer:
+                  GestureRecognizerFactoryWithHandlers<
+                      MultipleTapGestureRecognizer>(
+                () => MultipleTapGestureRecognizer(),
+                (instance) {
+                  instance..onTap = () => onImageTap?.call(tree.src, tree.alt);
+                },
+              ),
+            },
+            child: tree.toWidget(context),
+          ),
         );
       }
     } else if (tree is InteractableElement) {
@@ -532,7 +561,10 @@ class HtmlParser extends StatelessWidget {
   static StyledElement _processListCharactersRecursive(
       StyledElement tree, ListQueue<Context<int>> olStack) {
     if (tree.name == 'ol') {
-      olStack.add(Context((tree.attributes['start'] != null ? int.tryParse(tree.attributes['start']) ?? 1 : 1) - 1));
+      olStack.add(Context((tree.attributes['start'] != null
+              ? int.tryParse(tree.attributes['start']) ?? 1
+              : 1) -
+          1));
     } else if (tree.style.display == Display.LIST_ITEM) {
       switch (tree.style.listStyleType) {
         case ListStyleType.DISC:
@@ -814,7 +846,8 @@ class StyledText extends StatelessWidget {
   }
 
   double calculateWidth(Display display, RenderContext context) {
-    if ((display == Display.BLOCK || display == Display.LIST_ITEM) && !renderContext.parser.shrinkWrap) {
+    if ((display == Display.BLOCK || display == Display.LIST_ITEM) &&
+        !renderContext.parser.shrinkWrap) {
       return double.infinity;
     }
     if (renderContext.parser.shrinkWrap) {

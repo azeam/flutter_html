@@ -20,6 +20,8 @@ class StyledElement {
     this.children,
     this.style,
     dom.Element node,
+    String src,
+    String alt,
   }) : this._node = node;
 
   bool matchesSelector(String selector) =>

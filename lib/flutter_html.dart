@@ -53,7 +53,7 @@ class Html extends StatelessWidget {
   final bool shrinkWrap;
 
   /// Properties for the Image widget that gets rendered by the rich text parser
-  final OnTap onImageTap;
+  final OnImgTap onImageTap;
 
   final List<String> blacklistedElements;
 

@@ -21,12 +21,23 @@ import 'package:webview_flutter/webview_flutter.dart';
 abstract class ReplacedElement extends StyledElement {
   PlaceholderAlignment alignment;
 
+  String src;
+  String alt;
+
   ReplacedElement(
       {String name,
       Style style,
       dom.Element node,
-      this.alignment = PlaceholderAlignment.aboveBaseline})
-      : super(name: name, children: null, style: style, node: node);
+      this.alignment = PlaceholderAlignment.aboveBaseline,
+      this.src,
+      this.alt})
+      : super(
+            name: name,
+            children: null,
+            style: style,
+            node: node,
+            src: src,
+            alt: alt);
 
   static List<String> parseMediaSources(List<dom.Element> elements) {
     return elements
@@ -60,18 +71,17 @@ class TextContentElement extends ReplacedElement {
 /// [ImageContentElement] is a [ReplacedElement] with an image as its content.
 /// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img
 class ImageContentElement extends ReplacedElement {
-  final String src;
-  final String alt;
-
   ImageContentElement({
     String name,
     Style style,
-    this.src,
-    this.alt,
+    String src,
+    String alt,
     dom.Element node,
   }) : super(
           name: name,
           style: style,
+          src: node.attributes['src'],
+          alt: node.attributes['alt'],
           node: node,
           alignment: PlaceholderAlignment.middle,
         );
@@ -122,7 +132,8 @@ class IframeContentElement extends ReplacedElement {
             : JavascriptMode.disabled,
         navigationDelegate: navigationDelegate,
         gestureRecognizers: {
-          Factory<VerticalDragGestureRecognizer>(() => VerticalDragGestureRecognizer())
+          Factory<VerticalDragGestureRecognizer>(
+              () => VerticalDragGestureRecognizer())
         },
       ),
     );
@@ -131,7 +142,6 @@ class IframeContentElement extends ReplacedElement {
 
 /// [AudioContentElement] is a [ContentElement] with an audio file as its content.
 class AudioContentElement extends ReplacedElement {
-  final List<String> src;
   final bool showControls;
   final bool autoplay;
   final bool loop;
@@ -140,7 +150,6 @@ class AudioContentElement extends ReplacedElement {
   AudioContentElement({
     String name,
     Style style,
-    this.src,
     this.showControls,
     this.autoplay,
     this.loop,
@@ -155,7 +164,7 @@ class AudioContentElement extends ReplacedElement {
       child: ChewieAudio(
         controller: ChewieAudioController(
           videoPlayerController: VideoPlayerController.network(
-            src.first ?? "",
+            src ?? "",
           ),
           autoPlay: autoplay,
           looping: loop,
@@ -169,7 +178,6 @@ class AudioContentElement extends ReplacedElement {
 
 /// [VideoContentElement] is a [ContentElement] with a video file as its content.
 class VideoContentElement extends ReplacedElement {
-  final List<String> src;
   final String poster;
   final bool showControls;
   final bool autoplay;
@@ -181,7 +189,6 @@ class VideoContentElement extends ReplacedElement {
   VideoContentElement({
     String name,
     Style style,
-    this.src,
     this.poster,
     this.showControls,
     this.autoplay,
@@ -202,7 +209,7 @@ class VideoContentElement extends ReplacedElement {
         child: Chewie(
           controller: ChewieController(
             videoPlayerController: VideoPlayerController.network(
-              src.first ?? "",
+              src ?? "",
             ),
             placeholder: poster != null
                 ? Image.network(poster)
@@ -313,7 +320,6 @@ ReplacedElement parseReplacedElement(
       }
       return AudioContentElement(
         name: "audio",
-        src: sources,
         showControls: element.attributes['controls'] != null,
         loop: element.attributes['loop'] != null,
         autoplay: element.attributes['autoplay'] != null,
@@ -350,7 +356,6 @@ ReplacedElement parseReplacedElement(
       }
       return VideoContentElement(
         name: "video",
-        src: sources,
         poster: element.attributes['poster'],
         showControls: element.attributes['controls'] != null,
         loop: element.attributes['loop'] != null,
