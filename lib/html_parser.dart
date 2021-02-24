@@ -373,10 +373,9 @@ class HtmlParser extends StatelessWidget {
           baseline: TextBaseline.alphabetic,
           child: RawGestureDetector(
             gestures: {
-              MultipleTapGestureRecognizer:
-                  GestureRecognizerFactoryWithHandlers<
-                      MultipleTapGestureRecognizer>(
-                () => MultipleTapGestureRecognizer(),
+              TapGestureRecognizer:
+                  GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+                () => TapGestureRecognizer(),
                 (instance) {
                   instance..onTap = () => onImageTap?.call(tree.src, tree.alt);
                 },
