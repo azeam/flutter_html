@@ -2,7 +2,9 @@ library flutter_html;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_html/html_parser.dart';
+import 'package:flutter_html/image_render.dart';
 import 'package:flutter_html/style.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class Html extends StatelessWidget {
   /// The `Html` widget takes HTML as input and displays a RichText
@@ -35,15 +37,18 @@ class Html extends StatelessWidget {
     @required this.data,
     this.onLinkTap,
     this.customRender,
+    this.customImageRenders = const {},
     this.onImageError,
     this.shrinkWrap = false,
     this.onImageTap,
     this.blacklistedElements = const [],
     this.style,
+    this.navigationDelegateForIframe,
   }) : super(key: key);
 
   final String data;
   final OnTap onLinkTap;
+  final Map<ImageSourceMatcher, ImageRender> customImageRenders;
   final ImageErrorListener onImageError;
   final bool shrinkWrap;
 
@@ -59,6 +64,11 @@ class Html extends StatelessWidget {
   /// Fancy New Parser parameters
   final Map<String, Style> style;
 
+  /// Decides how to handle a specific navigation request in the WebView of an
+  /// Iframe. It's necessary to use the webview_flutter package inside the app
+  /// to use NavigationDelegate.
+  final NavigationDelegate navigationDelegateForIframe;
+
   @override
   Widget build(BuildContext context) {
     final double width = shrinkWrap ? null : MediaQuery.of(context).size.width;
@@ -73,7 +83,11 @@ class Html extends StatelessWidget {
         shrinkWrap: shrinkWrap,
         style: style,
         customRender: customRender,
+        imageRenders: {}
+          ..addAll(customImageRenders)
+          ..addAll(defaultImageRenders),
         blacklistedElements: blacklistedElements,
+        navigationDelegateForIframe: navigationDelegateForIframe,
       ),
     );
   }
